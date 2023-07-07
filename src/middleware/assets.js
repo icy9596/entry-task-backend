@@ -1,9 +1,10 @@
 const static = require('koa-static');
 const mount = require('koa-mount');
-const path = require('path');
+
+const { PUBLIC_PATH } = require('../utils/paths');
 
 function assets() {
-    return mount('/public', static(path.resolve(__dirname, '../../public')));
+    return mount('/public', static(PUBLIC_PATH));
 }
 
 module.exports = assets;
