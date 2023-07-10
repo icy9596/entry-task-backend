@@ -1,16 +1,24 @@
+const { Op } = require("sequelize");
+
 const { User } = require("../daos");
 const { encryptPwd, validatePwd } = require("../utils/pwdEncryption");
 const { createJWT } = require("../utils/jwt");
 
 class Users {
-  async getUsers(page, size) {
-    const offset = (page - 1) * size;
-    const limit = size;
-    const { rows, count: total } = await User.findAndCountAll({
-      offset,
-      limit,
+  async getUsers(page, size, username) {
+    const queryOpts = {
+      offset: (page - 1) * size,
+      limit: size,
       attributes: ["id", "username", "nickname", "profile"],
-    });
+    };
+    if (username) {
+      queryOpts.where = {
+        username: {
+          [Op.substring]: username,
+        }
+      };
+    }
+    const { rows, count: total } = await User.findAndCountAll(queryOpts);
     const list = rows.map((item) => item.dataValues);
 
     return {
@@ -54,7 +62,7 @@ class Users {
     if (!id) {
       return "用户id不能为空";
     }
-    
+
     const allowUpdateKeys = ["password", "nickname", "profile"];
     const updateData = allowUpdateKeys.reduce((memo, key) => {
       if (userData[key]) {
@@ -90,12 +98,7 @@ class Users {
     if (!validatePwd(inputPwd, password)) return errMsg;
 
     const jwt = createJWT({ id, username });
-
-    return {
-      id,
-      username,
-      token: jwt,
-    };
+    return { token: jwt };
   }
 }
 

@@ -3,8 +3,8 @@ const { users } = require("../services");
 
 class UserController {
   async getUsers(ctx) {
-    const { page = 1, size = 20 } = ctx.query;
-    const usersData = await users.getUsers(page, size);
+    const { page = 1, size = 20, username } = ctx.query;
+    const usersData = await users.getUsers(page, size, username);
     ctx.body = successBody(usersData);
   }
 
